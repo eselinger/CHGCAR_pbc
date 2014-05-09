@@ -1,13 +1,17 @@
 #!/usr/bin/python
 
-# Read file
-infile = open("CHGCAR", "r+")
-CHG_i = infile.read()
+import numpy as np
+
+# Read CHGCAR file
+infile = open("CHGCAR")
+CHG_i = infile.readlines()
 infile.close()
 
-CHG_f = CHG_i
+a = CHG_i[2:5]
+# Duplicate charge density lattice in each direction
+CHG_f = 3*np.array(a)
 
-# Write file
+# Write CHGCAR_mod file
 outfile = open("CHGCAR_mod","w")
-outfile.write(CHG_f)
+outfile.write(''.join(CHG_f))
 outfile.close()
