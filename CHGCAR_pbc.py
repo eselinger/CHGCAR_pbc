@@ -7,11 +7,20 @@ infile = open("CHGCAR")
 CHG_i = infile.readlines()
 infile.close()
 
-a = CHG_i[2:5]
-# Duplicate charge density lattice in each direction
-CHG_f = 3*np.array(a)
+CHG_f = CHG_i[2:5]
 
 # Write CHGCAR_mod file
-outfile = open("CHGCAR_mod","w")
+outfile = open("CHGCAR_supercell","w")
 outfile.write(''.join(CHG_f))
 outfile.close()
+
+with open('CHGCAR_supercell') as file:
+    array = [[float(digit) for digit in line.split()] for line in file]
+
+# Duplicate charge density lattice in each direction
+
+array3x = 3*np.array(array)
+
+np.savetxt('CHG_f',array3x)
+
+
