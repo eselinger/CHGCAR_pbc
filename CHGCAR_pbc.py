@@ -3,7 +3,7 @@
 import numpy as np
 
 #Read CHGCAR file
-infile = open("CHGCAR1")
+infile = open("CHGCAR")
 CHG_i = infile.readlines()
 infile.close()
 
@@ -41,23 +41,39 @@ for i in range (0,3): #multiplying supercell/atoms by 3
 #Add molecule coordinates in each direction
 
 #Defined charges array
-array = [[float(digit) for digit in line.split()] for line in CHG_i[17:]]
-x = np.array(array)
-charges = x.flatten()
+array = [[float(digit) for digit in line.split()] for line in CHG_i[17:-64]]
+a = np.array(array)
+charges = a.flatten() #one big 1D list
 
-x=3
+x=3 #Defined at this many x,y,z points
 y=4
 z=5
 
-everyz = [charges[i:i+z] for i in xrange(0,len(charges),z)]
+zlist = [charges[i:i+z] for i in xrange(0,len(charges),z)] #split into z length sublists
 
 j=0
 
-for i in xrange(len(everyz)):
-    everyz.insert(i+j+1,everyz[i+j])
+for i in xrange(len(zlist)): #repeat each z sublist after itself
+    zlist.insert(i+j+1,zlist[i+j])
     j=j+1
 
-np.savetxt('CHG_s.tmp',everyz)
+b = np.array(zlist)
+charges = b.flatten()
+ylist = [charges[i:i+(y*z*2)] for i in xrange(0,len(charges),y*z*2)]
+j=0
+i=0
+
+for i in xrange(len(ylist)):
+    ylist.insert(i+j+1,ylist[i+j])
+    j=j+1
+
+ylist=ylist*2
+c = np.array(ylist)
+charges = c.flatten()
+
+final = [charges[i:i+5] for i in xrange(0,len(charges),5)] #split into rows of 5, CHGCAR format
+
+np.savetxt('CHG_s.tmp',final)
 infile = open("CHG_s.tmp")
 charges = infile.read()
 infile.close()
