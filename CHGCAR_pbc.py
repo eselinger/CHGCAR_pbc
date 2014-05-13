@@ -3,9 +3,9 @@
 import numpy as np
 
 #Read CHGCAR file
-infile = open("CHGCAR")
-CHG_i = infile.readlines()
-infile.close()
+i = open("CHGCAR")
+CHG_i = i.readlines()
+i.close()
 
 #Copy supercell and Direct headers
 CHG_sheader = CHG_i[0:2]
@@ -18,15 +18,9 @@ CHG_s = range(4)
 CHG_tmp[0] = CHG_i[2:5] 
 mol = CHG_i[5:6]
 
-if [[float(digit) for digit in i.split()] for i in mol]: #read in if >1 atom type (if so, there is an extra line)
-    CHG_tmp[1] = CHG_i[5:6]
-    CHG_s[2] = 0
-    CHG_tmp[2] = CHG_i[16:17]
-else:
-    CHG_dheader = CHG_i[7:17]
-    CHG_tmp[1] = CHG_i[6:7]
-    CHG_tmp[2] = CHG_i[17:18]
-    CHG_s[3] = CHG_i[5:6]
+CHG_tmp[1] = CHG_i[5:6]
+CHG_s[2] = 0
+CHG_tmp[2] = CHG_i[16:17]
 
 for i in range (0,3): #multiplying supercell/atoms by 3
     if i == 0:
@@ -76,13 +70,12 @@ charges = c.flatten()
 final = [charges[i:i+5] for i in xrange(0,len(charges),5)] #split into rows of 5, CHGCAR format
 
 np.savetxt('CHG_s.tmp',final)
-infile = open("CHG_s.tmp")
-charges = infile.read()
-infile.close()
+i = open("CHG_s.tmp")
+charges = i.read()
+i.close()
 
 #Write output modified CHGCAR
-outfile = open("CHGCAR_mod","w")
-if [[float(digit) for digit in i.split()] for i in mol]:
-    outfile.write(', '.join(CHG_sheader) + ', '.join(CHG_s[0]) + ', '.join(CHG_s[1]) +', '.join(CHG_dheader)+ ', '.join(CHG_s[2]) +charges)
-else:
-    outfile.write(''.join(CHG_sheader) + CHG_s[0] + ''.join(CHG_s[3]) + CHG_s[1] +''.join(CHG_dheader))
+f = open('CHGCAR_mod','w')
+f.write(''.join(CHG_sheader))
+f.write(' '.join(CHG_s[0]) + ' '.join(CHG_s[1]))
+f.write(''.join(CHG_dheader) + ', '.join(CHG_s[2]) + charge)
