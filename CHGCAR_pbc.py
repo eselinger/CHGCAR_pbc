@@ -45,20 +45,19 @@ array = [[float(digit) for digit in line.split()] for line in CHG_i[17:]]
 x = np.array(array)
 charges = x.flatten()
 
-x=1
-y=2
-z=3
+x=3
+y=4
+z=5
 
-def chunks(list,n):
-   for i in xrange(0, len(list), n):
-       yield list[i:i+n]
+everyz = [charges[i:i+z] for i in xrange(0,len(charges),z)]
 
-everyz = [charges[i:i+z] for i in xrange(0,x*y*z,z)]
-iz = list(everyz)
+j=0
 
-print iz
+for i in xrange(len(everyz)):
+    everyz.insert(i+j+1,everyz[i+j])
+    j=j+1
 
-np.savetxt('CHG_s.tmp',zlist)
+np.savetxt('CHG_s.tmp',everyz)
 infile = open("CHG_s.tmp")
 charges = infile.read()
 infile.close()
