@@ -12,8 +12,8 @@ CHG_sheader = CHG_i[0:2]
 CHG_dheader = CHG_i[6:16]
 
 #Multiply supercell + # of atoms
-CHG_tmp = [0,0,0]
-CHG_s = [0,0,0,0]
+CHG_tmp = range(3) 
+CHG_s = range(4)
 
 CHG_tmp[0] = CHG_i[2:5] 
 mol = CHG_i[5:6]
@@ -29,14 +29,14 @@ else:
     CHG_s[3] = CHG_i[5:6]
 
 for i in range (0,3): #multiplying supercell/atoms by 3
-    array = [[float(digit) for digit in line.split()] for line in CHG_tmp[i]]
+    if i == 0:
+        array = [[2*float(digit) for digit in line.split()] for line in CHG_tmp[i]]
+    else:
+        array = [[2*int(digit) for digit in line.split()] for line in CHG_tmp[i]]
 
-    array3x = 2*np.array(array)
-    np.savetxt('CHG_s.tmp',array3x)
+    CHG_s[i] = array 
+    print CHG_s[i]
 
-    infile = open("CHG_s.tmp")
-    CHG_s[i] = infile.read()
-    infile.close()
 
 #Add molecule coordinates in each direction
 
@@ -44,6 +44,8 @@ for i in range (0,3): #multiplying supercell/atoms by 3
 array = [[float(digit) for digit in line.split()] for line in CHG_i[17:-64]]
 a = np.array(array)
 charges = a.flatten() #one big 1D list
+
+#print charges[0:20]
 
 x=3 #Defined at this many x,y,z points
 y=4
@@ -81,6 +83,6 @@ infile.close()
 #Write output modified CHGCAR
 outfile = open("CHGCAR_mod","w")
 if [[float(digit) for digit in i.split()] for i in mol]:
-    outfile.write(''.join(CHG_sheader) + CHG_s[0] + CHG_s[1] +''.join(CHG_dheader)+ CHG_s[2] +charges)
+    outfile.write(', '.join(CHG_sheader) + ', '.join(CHG_s[0]) + ', '.join(CHG_s[1]) +', '.join(CHG_dheader)+ ', '.join(CHG_s[2]) +charges)
 else:
     outfile.write(''.join(CHG_sheader) + CHG_s[0] + ''.join(CHG_s[3]) + CHG_s[1] +''.join(CHG_dheader))
