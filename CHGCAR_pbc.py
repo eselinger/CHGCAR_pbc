@@ -3,38 +3,35 @@
 import numpy as np
 
 #Read CHGCAR file
-i = open("CHGCAR")
-CHG_i = i.readlines()
-i.close()
+infile = open('CHGCAR','r')
+f = open('out','w')
 
-#Copy supercell and Direct headers
-CHG_sheader = CHG_i[0:2]
-CHG_dheader = CHG_i[6:16]
+#write header out
+sheader = infile.readline() + infile.readline()
 
-#Multiply supercell + # of atoms
-CHG_tmp = range(3) 
-CHG_s = range(4)
+f.write(sheader)
 
-CHG_tmp[0] = CHG_i[2:5] 
-mol = CHG_i[5:6]
+#multiply supercell and write out
+supercell = []
 
-CHG_tmp[1] = CHG_i[5:6]
-CHG_s[2] = 0
-CHG_tmp[2] = CHG_i[16:17]
+for i in xrange(3):
+    line = infile.readline()
+    supercell = [2*float(element) for element in line.split()]
+    for element in supercell:
+        f.write(str(element) + ' ')
+    f.write('\n')
 
-for i in range (0,3): #multiplying supercell/atoms by 3
-    if i == 0:
-        array = [[2*float(digit) for digit in line.split()] for line in CHG_tmp[i]]
-    else:
-        array = [[2*int(digit) for digit in line.split()] for line in CHG_tmp[i]]
-
-    CHG_s[i] = array 
-    print CHG_s[i]
-
+#multiply number of atoms by 8
+line = infile.readline()
+atoms = [8*int(element) for element in line.split()]
+for element in atoms:
+    f.write(str(element))
 
 #Add molecule coordinates in each direction
 
 #Defined charges array
+CHG_i = infile.readlines()
+print CHG_i[1:2]
 array = [[float(digit) for digit in line.split()] for line in CHG_i[17:-64]]
 a = np.array(array)
 charges = a.flatten() #one big 1D list
@@ -75,7 +72,5 @@ charges = i.read()
 i.close()
 
 #Write output modified CHGCAR
-f = open('CHGCAR_mod','w')
-f.write(''.join(CHG_sheader))
-f.write(' '.join(CHG_s[0]) + ' '.join(CHG_s[1]))
-f.write(''.join(CHG_dheader) + ', '.join(CHG_s[2]) + charge)
+infile.close()
+f.close()
