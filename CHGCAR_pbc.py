@@ -34,9 +34,10 @@ header = infile.readline()
 f.write(header)
 
 #Add molecule coordinates in each direction
-if len(anum) > 1:			#get total number of atoms
+atot = 0
+if len(anum) < 1:			#get total number of atoms
     for i in xrange(len(anum)):
-        atot = anum[i] * anum[i+1]
+        atot = atot + anum[i]
 else:
     atot = anum[0]
 
@@ -55,22 +56,22 @@ for i in xrange(atot):			#read in atom coordinates
     coordinates.append(coord) #coords of original atoms for new supercell
     newcoord.append(ncoord) #coords of complete shift (x,y,z)
 
-for j in xrange(0,3):
-    for i in xrange(0,atot):        
+for j in xrange(0,3):			#loop over x y and z columns
+    for i in xrange(0,atot):            #for original atoms coordinates (new supercell fractions) replace with (coord+0.5) only all x + write, then all only y + write, etc. 
         fcoord = cp.deepcopy(coordinates)
         fcoord[i][j] = newcoord[i][j]   
         for element in fcoord[i]:
             f.write(str(element) + ' ')
         f.write('\n')
 
-    for i in xrange(0,atot):
+    for i in xrange(0,atot):		#for coord+0.5 coordinates replace with original coordinates, only all x + write, only all y + write
         fcoord = cp.deepcopy(newcoord)
         fcoord[i][j] = coordinates[i][j]
         for element in fcoord[i]:
             f.write(str(element) + ' ')
         f.write('\n')
 
-for i in xrange(0,atot):
+for i in xrange(0,atot):		#write out all coord+0.5 for all x,y,z
     for element in newcoord[i]:
         f.write(str(element) + ' ')
     f.write('\n')
@@ -102,15 +103,15 @@ x = cnum[0] #Defined at this many x,y,z points
 y = cnum[1]
 z = cnum[2]
 
-zlist = [charges[i:i+x] for i in xrange(0,len(charges),x)] #split into z length sublists
+xlist = [charges[i:i+x] for i in xrange(0,len(charges),x)] #split into x length sublists
 
 j=0
 
-for i in xrange(len(zlist)): #repeat each z sublist after itself
-    zlist.insert(i+j+1,zlist[i+j])
+for i in xrange(len(xlist)): #repeat each x sublist after itself
+    xlist.insert(i+j+1,xlist[i+j])
     j=j+1
 
-b = np.array(zlist)
+b = np.array(xlist)
 charges = b.flatten()
 ylist = [charges[i:i+(y*x*2)] for i in xrange(0,len(charges),y*x*2)]
 j=0
