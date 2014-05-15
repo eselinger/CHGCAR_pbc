@@ -26,7 +26,7 @@ line = infile.readline()
 anum = []
 for element in line.split(): anum.append(int(element)) #storing number of each atom
 
-atoms = [int(element)*8 for element in line.split()]
+atoms = [int(element)*8 for element in line.split()] #write out new number of atoms
 for element in atoms: f.write(str(element) + '\n')
 
 #copy Direct header to outfile
@@ -63,8 +63,28 @@ for j in xrange(0,3):
             f.write(str(element) + ' ')
         f.write('\n')
 
-print coordinates
-print fcoord
+    for i in xrange(0,atot):
+        fcoord = cp.deepcopy(newcoord)
+        fcoord[i][j] = coordinates[i][j]
+        for element in fcoord[i]:
+            f.write(str(element) + ' ')
+        f.write('\n')
+
+for i in xrange(0,atot):
+    for element in newcoord[i]:
+        f.write(str(element) + ' ')
+    f.write('\n')
+
+f.write('\n')
+#multiply number of charges defined in each direction
+ignore = infile.readline()
+line = infile.readline()
+
+cnum = []
+for element in line.split(): cnum.append(int(element)) #storing each number
+
+chgnum = [int(element)*2 for element in line.split()] #write out new number of defined points
+for element in chgnum: f.write(str(element) + ' ')
 
 #Defined charges array
 CHG_i = infile.readlines()
