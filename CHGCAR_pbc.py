@@ -5,7 +5,7 @@ import copy as cp
 
 #Read CHGCAR file
 infile = open('CHGCAR','r')
-f = open('out','w')
+f = open('CHGCAR_mod','w')
 
 #copy supercell header to outfile
 header = infile.readline() + infile.readline()
@@ -75,7 +75,8 @@ for i in xrange(0,atot):
         f.write(str(element) + ' ')
     f.write('\n')
 
-f.write('\n')
+f.write('\n') #blank line
+
 #multiply number of charges defined in each direction
 ignore = infile.readline()
 line = infile.readline()
@@ -85,21 +86,23 @@ for element in line.split(): cnum.append(int(element)) #storing each number
 
 chgnum = [int(element)*2 for element in line.split()] #write out new number of defined points
 for element in chgnum: f.write(str(element) + ' ')
+f.write('\n')
 
 #Defined charges array
 CHG_i = infile.readlines()
-print CHG_i[1:2]
-array = [[float(digit) for digit in line.split()] for line in CHG_i[17:-64]]
-a = np.array(array)
+infile.close()
+
+chgvec = [[float(digit) for digit in line.split()] for line in CHG_i[:]]
+a = np.array(chgvec)
 charges = a.flatten() #one big 1D list
 
 #print charges[0:20]
 
-x=3 #Defined at this many x,y,z points
-y=4
-z=5
+x = cnum[0] #Defined at this many x,y,z points
+y = cnum[1]
+z = cnum[2]
 
-zlist = [charges[i:i+z] for i in xrange(0,len(charges),z)] #split into z length sublists
+zlist = [charges[i:i+x] for i in xrange(0,len(charges),x)] #split into z length sublists
 
 j=0
 
@@ -109,7 +112,7 @@ for i in xrange(len(zlist)): #repeat each z sublist after itself
 
 b = np.array(zlist)
 charges = b.flatten()
-ylist = [charges[i:i+(y*z*2)] for i in xrange(0,len(charges),y*z*2)]
+ylist = [charges[i:i+(y*x*2)] for i in xrange(0,len(charges),y*x*2)]
 j=0
 i=0
 
@@ -124,10 +127,10 @@ charges = c.flatten()
 final = [charges[i:i+5] for i in xrange(0,len(charges),5)] #split into rows of 5, CHGCAR format
 
 np.savetxt('CHG_s.tmp',final)
-i = open("CHG_s.tmp")
-charges = i.read()
-i.close()
+infile = open("CHG_s.tmp")
+charges = infile.read()
+infile.close()
 
 #Write output modified CHGCAR
-infile.close()
+f.write(charges)
 f.close()
