@@ -3,16 +3,13 @@
 import numpy as np
 import copy as cp
 
-#Read CHGCAR file
 infile = open('CHGCAR','r')
 f = open('CHGCAR_mod','w')
 
-#copy supercell header to outfile
-header = infile.readline() + infile.readline()
+header = infile.readline() + infile.readline()		#COPY FILE HEADERS TO OUTFILE
 f.write(header)
 
-#multiply supercell and write out
-supercell = []
+Isupercell = []				#MULTIPLY SUPERCELL SIZE
 
 for i in xrange(3):			#for the next three lines (x,y,z of supercell)
     line = infile.readline()		#read in line
@@ -21,19 +18,18 @@ for i in xrange(3):			#for the next three lines (x,y,z of supercell)
         f.write(str(element) + ' ')
     f.write('\n')
 
-#multiply number of atoms
+							#MULTIPLY NUMBER OF ATOMS
 line = infile.readline()				#line with number of atoms
 anum = []
 for element in line.split(): anum.append(int(element))	#store number of each type of atom as elements of anum array
 
 atoms = [int(element)*8 for element in line.split()]	#new number of each type of atom in expanded supercell
-for element in atoms: f.write(str(element) + '\n') 	#write out new number of each atom
+for element in atoms: f.write(str(element) + '\n') 	#write out new number of each 
 
-#copy Direct header to outfile
-header = infile.readline()	#read in "Direct" and output on same line in output file
+header = infile.readline()		#copy Direct header to outfile
 f.write(header)
 
-#Add molecule coordinates in each direction
+					#ADD MOLECULE COORDINATES IN EACH DIRECTION
 atot = 0
 if len(anum) > 1:			#if more than one type of atom (more than one element in anum)
     for i in xrange(len(anum)):		#find total number of all atoms (regardless of type)
@@ -76,10 +72,10 @@ for i in xrange(0,atot):		#add to end of all new coordinates, completely transla
         f.write(str(element) + ' ')
     f.write('\n')
 
-f.write('\n')		#blank line, necessary for CHGCAR format
+f.write('\n')				#blank line, necessary for CHGCAR format
 
-#multiply number of charges defined in each direction
-ignore = infile.readline()
+
+ignore = infile.readline()		#MULTIPLY NUMBER OF CHARGES DEFINED IN EACH DIRECTION
 line = infile.readline()
 
 cnum = []
@@ -89,8 +85,7 @@ chgnum = [int(element)*2 for element in line.split()]	#multiply each element for
 for element in chgnum: f.write(str(element) + ' ')	#write out
 f.write('\n')
 
-#Defined charges array
-CHG_i = infile.readlines()
+CHG_i = infile.readlines()		#MAKE EXPANDED DEFINED CHARGES ARRAY
 infile.close()
 
 chgvec = [[float(digit) for digit in line.split()] for line in CHG_i[:]] #create float array, rest of lines in file
@@ -128,6 +123,5 @@ infile = open("CHG_s.tmp")		#read back in
 charges = infile.read()
 infile.close()
 
-#Write output modified CHGCAR
 f.write(charges)			#write new defined charge points into final output file
 f.close()
