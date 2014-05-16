@@ -14,124 +14,120 @@ f.write(header)
 #multiply supercell and write out
 supercell = []
 
-for i in xrange(3):
-    line = infile.readline()
-    supercell = [2*float(element) for element in line.split()]
-    for element in supercell:
+for i in xrange(3):			#for the next three lines (x,y,z of supercell)
+    line = infile.readline()		#read in line
+    supercell = [2*float(element) for element in line.split()] #split line, copy cell size outward in each direction
+    for element in supercell:					#write new supercell to output
         f.write(str(element) + ' ')
     f.write('\n')
 
 #multiply number of atoms
-line = infile.readline()
+line = infile.readline()				#line with number of atoms
 anum = []
-for element in line.split(): anum.append(int(element)) #storing number of each atom
+for element in line.split(): anum.append(int(element))	#store number of each type of atom as elements of anum array
 
-atoms = [int(element)*8 for element in line.split()] #write out new number of atoms
-for element in atoms: f.write(str(element) + '\n')
+atoms = [int(element)*8 for element in line.split()]	#new number of each type of atom in expanded supercell
+for element in atoms: f.write(str(element) + '\n') 	#write out new number of each atom
 
 #copy Direct header to outfile
-header = infile.readline()
+header = infile.readline()	#read in "Direct" and output on same line in output file
 f.write(header)
 
 #Add molecule coordinates in each direction
 atot = 0
-if len(anum) < 1:			#get total number of atoms
-    for i in xrange(len(anum)):
+if len(anum) > 1:			#if more than one type of atom (more than one element in anum)
+    for i in xrange(len(anum)):		#find total number of all atoms (regardless of type)
         atot = atot + anum[i]
 else:
-    atot = anum[0]
+    atot = anum[0]			#if only one type of atom, value of anum[0] = total number of atoms
 
 coord = []
 coordinates = []
 ncoord = []
 newcoord = []
 
-for i in xrange(atot):			#read in atom coordinates
-    line = infile.readline()
-    coord = [float(element)*0.5 for element in line.split()] #original coords/2 for new supercell
-    ncoord = [float(element)+0.5 for element in coord] #make array of shifted coordinates
-    for element in coord:		#write out coords of original atoms for new supercell
+for i in xrange(atot):			#number of Direct coordinate lines = number of total atoms
+    line = infile.readline()		#read in one line at a time, each element in line is x,y,z respectively
+    coord = [float(element)*0.5 for element in line.split()] #original atoms location for new supercell
+    ncoord = [float(element)+0.5 for element in coord] #array of fully shifted coordinates in all directions
+    for element in coord:		#write out coordinates of original atoms for new supercell
         f.write(str(element) + ' ')
     f.write('\n')
-    coordinates.append(coord) #coords of original atoms for new supercell
-    newcoord.append(ncoord) #coords of complete shift (x,y,z)
+    coordinates.append(coord)	#array of coordinates of original atom locations in new supercell
+    newcoord.append(ncoord)	#array of coordinates of completely translated atom locations
 
-for j in xrange(0,3):			#loop over x y and z columns
-    for i in xrange(0,atot):            #for original atoms coordinates (new supercell fractions) replace with (coord+0.5) only all x + write, then all only y + write, etc. 
-        fcoord = cp.deepcopy(coordinates)
-        fcoord[i][j] = newcoord[i][j]   
-        for element in fcoord[i]:
+for j in xrange(0,3):			#loop over x y z, create 6 new arrays 
+    for i in xrange(0,atot):            #for total number of atoms of shifted atom coordinates
+        fcoord = cp.deepcopy(coordinates 	#fcoord is duplicate of original atoms coordinates for new supercell
+        fcoord[i][j] = newcoord[i][j		#replace only x, next loop only y, next loop only z
+        for element in fcoord[i]:		#write to output file
             f.write(str(element) + ' ')
         f.write('\n')
 
-    for i in xrange(0,atot):		#for coord+0.5 coordinates replace with original coordinates, only all x + write, only all y + write
+    for i in xrange(0,atot):		#same as previous loop but replace only x+y or y+z or z+x
         fcoord = cp.deepcopy(newcoord)
         fcoord[i][j] = coordinates[i][j]
         for element in fcoord[i]:
             f.write(str(element) + ' ')
         f.write('\n')
 
-for i in xrange(0,atot):		#write out all coord+0.5 for all x,y,z
+for i in xrange(0,atot):		#add to end of all new coordinates, completely translated coordinates (every direction shifted)
     for element in newcoord[i]:
         f.write(str(element) + ' ')
     f.write('\n')
 
-f.write('\n') #blank line
+f.write('\n')		#blank line, necessary for CHGCAR format
 
 #multiply number of charges defined in each direction
 ignore = infile.readline()
 line = infile.readline()
 
 cnum = []
-for element in line.split(): cnum.append(int(element)) #storing each number
+for element in line.split(): cnum.append(int(element)) #store number of defined points in x, y, z as cnum elements
 
-chgnum = [int(element)*2 for element in line.split()] #write out new number of defined points
-for element in chgnum: f.write(str(element) + ' ')
+chgnum = [int(element)*2 for element in line.split()]	#multiply each element for new number of defined points
+for element in chgnum: f.write(str(element) + ' ')	#write out
 f.write('\n')
 
 #Defined charges array
 CHG_i = infile.readlines()
 infile.close()
 
-chgvec = [[float(digit) for digit in line.split()] for line in CHG_i[:]]
-a = np.array(chgvec)
-charges = a.flatten() #one big 1D list
+chgvec = [[float(digit) for digit in line.split()] for line in CHG_i[:]] #create float array, rest of lines in file
+a = np.array(chgvec)			#make numpy array
+charges = a.flatten() 			#flatten for 1D list
 
-#print charges[0:20]
-
-x = cnum[0] #Defined at this many x,y,z points
+x = cnum[0]		#defined at this many x,y,z points originally
 y = cnum[1]
 z = cnum[2]
 
-xlist = [charges[i:i+x] for i in xrange(0,len(charges),x)] #split into x length sublists
+xlist = [charges[i:i+x] for i in xrange(0,len(charges),x)]	#split into x length sublists
 
 j=0
-
-for i in xrange(len(xlist)): #repeat each x sublist after itself
+for i in xrange(len(xlist)):		#insert duplicate of each sublist after itself
     xlist.insert(i+j+1,xlist[i+j])
     j=j+1
 
-b = np.array(xlist)
-charges = b.flatten()
-ylist = [charges[i:i+(y*x*2)] for i in xrange(0,len(charges),y*x*2)]
-j=0
-i=0
+b = np.array(xlist)			#new array made out of list with duplicated chunks
+charges = b.flatten()			#make 1D array of new array
+ylist = [charges[i:i+(y*x*2)] for i in xrange(0,len(charges),y*x*2)]	#split into y length sublists
 
-for i in xrange(len(ylist)):
+j=0,i=0
+for i in xrange(len(ylist)):		#insert duplicate of each sublist after itself
     ylist.insert(i+j+1,ylist[i+j])
     j=j+1
 
-ylist=ylist*2
+ylist=ylist*2			#duplicate entire list
 c = np.array(ylist)
-charges = c.flatten()
+charges = c.flatten()		#flatten into 1D array
 
-final = [charges[i:i+5] for i in xrange(0,len(charges),5)] #split into rows of 5, CHGCAR format
+final = [charges[i:i+5] for i in xrange(0,len(charges),5)]	#reshape to 5 element rows, CHGCAR format
 
-np.savetxt('CHG_s.tmp',final)
-infile = open("CHG_s.tmp")
+np.savetxt('CHG_s.tmp',final)		#write out numpy array as string list
+infile = open("CHG_s.tmp")		#read back in
 charges = infile.read()
 infile.close()
 
 #Write output modified CHGCAR
-f.write(charges)
+f.write(charges)			#write new defined charge points into final output file
 f.close()
