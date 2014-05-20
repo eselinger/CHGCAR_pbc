@@ -1,7 +1,7 @@
 CHGCAR_pbc
 ===
 
-This script converts an n x n size CHGCAR to a 2n x 2n CHGCAR for display purposes in VMD. This is useful to view with atoms given periodic boundary conditions, since pbcs cannot be applied to CHGCAR files in VMD. It does this by duplicating the original supercell on each positive edge to make the larger cell.
+This script converts an n x n size CHGCAR to a 2n x 2n CHGCAR for display purposes in VMD. This is useful to view with atoms given periodic boundary conditions (CONTCAR, POSCAR), since pbcs cannot be applied to CHGCAR files in VMD. It does this by duplicating the original supercell on each positive edge to make the larger cell.
 
 The script reads in the supercell size line by line and multiplies it by 2. 
 
