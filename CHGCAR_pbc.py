@@ -3,7 +3,7 @@
 import numpy as np
 import copy as cp
 
-infile = open('CHGCAR','r')
+infile = open('CHGCAR1','r')
 f = open('CHGCAR_mod','w')
 
 header = infile.readline() + infile.readline()		#COPY FILE HEADERS TO OUTFILE
@@ -18,13 +18,26 @@ for i in xrange(3):			#for the next three lines (x,y,z of supercell)
         f.write(str(element) + ' ')
     f.write('\n')
 
+def is_float(s):				#function to check for strings
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
 							#MULTIPLY NUMBER OF ATOMS
 line = infile.readline()				#line with number of atoms
 anum = []
-for element in line.split(): anum.append(int(element))	#store number of each type of atom as elements of anum array
+temp = [element for element in line.split()]		#split elements of line
 
+
+if float(temp[0]) == False:			#if elem is not a number, write to outfile, move to next line
+    f.write(line)
+    line = infile.readline()
+
+for element in line.split(): anum.append(int(element))	#store number of each type of atom
 atoms = [int(element)*8 for element in line.split()]	#new number of each type of atom in expanded supercell
-for element in atoms: f.write(str(element) + '\n') 	#write out new number of each 
+for element in atoms: f.write(str(element) + ' ') 	#write out new number of each 
+f.write('\n')
 
 header = infile.readline()		#copy Direct header to outfile
 f.write(header)
@@ -87,7 +100,7 @@ f.write('\n')
 
 CHG_i = infile.readlines()		#MAKE EXPANDED DEFINED CHARGES ARRAY
 infile.close()
-
+   
 chgvec = [[float(digit) for digit in line.split()] for line in CHG_i[:]] #create float array, rest of lines in file
 a = np.array(chgvec)			#make numpy array
 charges = a.flatten() 			#flatten for 1D list
