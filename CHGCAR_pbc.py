@@ -9,7 +9,7 @@ f = open('CHGCAR_mod','w')
 header = infile.readline() + infile.readline()		#COPY FILE HEADERS TO OUTFILE
 f.write(header)
 
-Isupercell = []				#MULTIPLY SUPERCELL SIZE
+supercell = []				#MULTIPLY SUPERCELL SIZE
 
 for i in xrange(3):			#for the next three lines (x,y,z of supercell)
     line = infile.readline()		#read in line
@@ -54,8 +54,8 @@ for i in xrange(atot):			#number of Direct coordinate lines = number of total at
 
 for j in xrange(0,3):			#loop over x y z, create 6 new arrays 
     for i in xrange(0,atot):            #for total number of atoms of shifted atom coordinates
-        fcoord = cp.deepcopy(coordinates 	#fcoord is duplicate of original atoms coordinates for new supercell
-        fcoord[i][j] = newcoord[i][j		#replace only x, next loop only y, next loop only z
+        fcoord = cp.deepcopy(coordinates) 	#fcoord is duplicate of original atoms coordinates for new supercell
+        fcoord[i][j] = newcoord[i][j]		#replace only x, next loop only y, next loop only z
         for element in fcoord[i]:		#write to output file
             f.write(str(element) + ' ')
         f.write('\n')
@@ -107,7 +107,7 @@ b = np.array(xlist)			#new array made out of list with duplicated chunks
 charges = b.flatten()			#make 1D array of new array
 ylist = [charges[i:i+(y*x*2)] for i in xrange(0,len(charges),y*x*2)]	#split into y length sublists
 
-j=0,i=0
+j=0
 for i in xrange(len(ylist)):		#insert duplicate of each sublist after itself
     ylist.insert(i+j+1,ylist[i+j])
     j=j+1
