@@ -3,7 +3,7 @@
 import numpy as np
 import copy as cp
 
-infile = open('CHGCAR1','r')
+infile = open('CHGCAR','r')
 f = open('CHGCAR_mod','w')
 
 header = infile.readline() + infile.readline()		#COPY FILE HEADERS TO OUTFILE
@@ -30,7 +30,7 @@ anum = []
 temp = [element for element in line.split()]		#split elements of line
 
 
-if float(temp[0]) == False:			#if elem is not a number, write to outfile, move to next line
+if is_float(temp[0]) == False:			#if elem is not a number, write to outfile, move to next line
     f.write(line)
     line = infile.readline()
 
@@ -100,7 +100,16 @@ f.write('\n')
 
 CHG_i = infile.readlines()		#MAKE EXPANDED DEFINED CHARGES ARRAY
 infile.close()
-   
+temp = [[element for element in line.split()] for line in CHG_i[:]]  
+c = []
+
+for i in xrange(len(temp)):		#check if element is string, if so store that line num
+    for j in xrange(len(temp[i])):
+        if is_float(temp[i][j]) == False:
+            c.append(i,)
+
+CHG_i = CHG_i[0:-(len(CHG_i)-c[0])]	#make array length up to first string
+
 chgvec = [[float(digit) for digit in line.split()] for line in CHG_i[:]] #create float array, rest of lines in file
 a = np.array(chgvec)			#make numpy array
 charges = a.flatten() 			#flatten for 1D list
